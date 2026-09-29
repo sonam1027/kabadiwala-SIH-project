@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kabadiwala 2.0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FAF6EC; --paper-dark:#F1EAD9;
+    --forest:#1F3D2B; --forest-deep:#14291C;
+    --kraft:#8C6A4F; --kraft-light:#C9A97E;
+    --marigold:#E8A73B; --marigold-deep:#C7871E;
+    --ink:#2B2620; --ink-soft:#5C554A;
+    --line:#DED3BC;
+    --radius:14px;
+    box-sizing:border-box;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  *{box-sizing:inherit;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Work Sans',sans-serif; min-height:100%;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif; margin:0; font-weight:700; color:var(--forest-deep);}
+  header.top{
+    padding:22px 18px 14px; text-align:center;
+    background:linear-gradient(180deg,var(--forest) 0%, var(--forest-deep) 100%);
+    color:var(--paper); position:relative;
+    padding-top:calc(22px + env(safe-area-inset-top,0px));
+  }
+  header.top h1{color:var(--paper); font-size:1.5rem; letter-spacing:.2px;}
+  header.top p{margin:4px 0 0; font-size:.82rem; color:#C9E0CF; font-weight:500;}
+
+  nav.tabs{
+    display:flex; gap:0; background:var(--forest-deep);
+    position:sticky; top:env(safe-area-inset-top,0px); z-index:10;
+  }
+  nav.tabs button{
+    flex:1; padding:12px 6px; background:none; border:none; color:#9FB8A6;
+    font-family:'Work Sans',sans-serif; font-weight:600; font-size:.82rem;
+    cursor:pointer; border-bottom:3px solid transparent; transition:.15s;
+  }
+  nav.tabs button.active{color:var(--marigold); border-bottom-color:var(--marigold);}
+
+  main{max-width:480px; margin:0 auto; padding:20px 16px 60px;}
+  .view{display:none;}
+  .view.active{display:block; animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  .card{
+    background:#fff; border:1px solid var(--line); border-radius:var(--radius);
+    padding:18px; margin-bottom:14px;
+  }
+  .subtle{color:var(--ink-soft); font-size:.9rem; line-height:1.5;}
+
+  .choice-grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:14px 0 4px;}
+  .choice{
+    border:2px solid var(--line); border-radius:var(--radius); background:var(--paper-dark);
+    padding:16px 8px; text-align:center; cursor:pointer; transition:.15s;
+  }
+  .choice .emoji{font-size:1.7rem; display:block; margin-bottom:6px;}
+  .choice span.label{font-size:.78rem; font-weight:600; color:var(--ink);}
+  .choice.selected{border-color:var(--marigold); background:#FFF6E4;}
+
+  .btn{
+    display:block; width:100%; text-align:center; padding:14px; border-radius:999px;
+    border:none; font-weight:700; font-size:1rem; cursor:pointer; font-family:inherit;
+    background:var(--forest); color:var(--paper); margin-top:10px; transition:.15s;
+  }
+  .btn:active{transform:scale(.98);}
+  .btn.secondary{background:var(--paper-dark); color:var(--forest-deep); border:1px solid var(--line);}
+  .btn:disabled{opacity:.45; cursor:not-allowed;}
+
+  .upload-box{
+    border:2px dashed var(--kraft-light); border-radius:var(--radius); padding:26px 14px;
+    text-align:center; background:var(--paper-dark); cursor:pointer;
+  }
+  .upload-box img{max-width:100%; max-height:160px; border-radius:10px; margin-top:10px;}
+
+  .pill{
+    display:inline-block; padding:4px 12px; border-radius:999px; font-size:.75rem; font-weight:700;
+  }
+  .pill.good{background:#DCEEDD; color:var(--forest-deep);}
+  .pill.mixed{background:#FDEBD0; color:var(--marigold-deep);}
+
+  .job-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:12px 0; border-bottom:1px solid var(--line);
+  }
+  .job-row:last-child{border-bottom:none;}
+  .job-row .meta{font-size:.8rem; color:var(--ink-soft);}
+  .tag-btn{
+    background:var(--marigold); color:var(--forest-deep); border:none; padding:8px 14px;
+    border-radius:999px; font-weight:700; font-size:.78rem; cursor:pointer;
+  }
+
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  .stat{
+    background:var(--forest); color:var(--paper); border-radius:var(--radius); padding:16px;
+  }
+  .stat .num{font-family:'Fraunces',serif; font-size:1.9rem; font-weight:700; color:var(--marigold);}
+  .stat .lbl{font-size:.75rem; color:#C9E0CF; margin-top:2px;}
+  .feed-item{
+    display:flex; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); font-size:.85rem;
+  }
+  .feed-item:last-child{border-bottom:none;}
+  .dot{width:8px; height:8px; border-radius:50%; background:var(--marigold); margin-top:6px; flex:none;}
+
+  .toast{
+    position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px);
+    background:var(--forest-deep); color:var(--paper); padding:12px 20px; border-radius:999px;
+    font-weight:600; font-size:.88rem; opacity:0; pointer-events:none; transition:.3s;
+    box-shadow:0 8px 24px rgba(0,0,0,.25); z-index:50; white-space:nowrap;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .scan-result{
+    display:flex; align-items:center; gap:12px; background:var(--paper-dark);
+    border-radius:var(--radius); padding:12px; margin-top:12px;
+  }
+  .scan-result .emoji{font-size:1.8rem;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <h1>Kabadiwala 2.0</h1>
+  <p>Connecting collectors to compliance — one verified pickup at a time</p>
+</header>
+
+<nav class="tabs">
+  <button data-view="citizen" class="active">Citizen</button>
+  <button data-view="kabadiwala">Kabadiwala</button>
+  <button data-view="dashboard">Dashboard</button>
+</nav>
+
+<main>
+
+  <!-- CITIZEN VIEW -->
+  <section class="view active" id="citizen">
+    <div class="card" id="citizen-request-card">
+      <h2>What are you recycling?</h2>
+      <p class="subtle">Pick a category and request a pickup near you.</p>
+      <div class="choice-grid">
+        <div class="choice" data-type="E-Waste"><span class="emoji">📱</span><span class="label">E-Waste</span></div>
+        <div class="choice" data-type="Plastic"><span class="emoji">♻️</span><span class="label">Plastic</span></div>
+        <div class="choice" data-type="Mixed"><span class="emoji">🗑️</span><span class="label">Mixed</span></div>
+      </div>
+      <button class="btn" id="request-btn" disabled>Request Pickup</button>
+    </div>
+
+    <div class="card hidden" id="citizen-confirmed-card">
+      <h2>✅ Request sent!</h2>
+      <p class="subtle" style="margin-top:8px;">A kabadiwala has been matched to your pickup.</p>
+      <div class="job-row" style="margin-top:8px;">
+        <div>
+          <strong>Ramesh Kumar</strong>
+          <div class="meta">⭐ 4.8 · 0.6 km away · arriving in ~12 min</div>
+        </div>
+        <span class="emoji" style="font-size:1.6rem;">🚲</span>
+      </div>
+      <button class="btn secondary" id="citizen-reset">Request Another Pickup</button>
+    </div>
+  </section>
+
+  <!-- KABADIWALA VIEW -->
+  <section class="view" id="kabadiwala">
+    <div class="card" id="job-list-card">
+      <h2>Pickups near you</h2>
+      <p class="subtle">Tap a job to scan and complete it.</p>
+      <div id="job-list"></div>
+    </div>
+
+    <div class="card hidden" id="job-detail-card">
+      <h2>Scan the item</h2>
+      <p class="subtle">Take or upload a photo to classify it.</p>
+      <label class="upload-box" for="photo-input">
+        <span id="upload-hint">📷 Tap to add a photo</span>
+        <input type="file" id="photo-input" accept="image/*" style="display:none;">
+        <div id="photo-preview"></div>
+      </label>
+
+      <div class="scan-result hidden" id="scan-result">
+        <span class="emoji" id="scan-emoji">♻️</span>
+        <div>
+          <div><strong id="scan-type">Plastic</strong> · <span class="pill good" id="scan-quality">Good Quality</span></div>
+          <div class="subtle" id="scan-confidence">Confidence: 92%</div>
+        </div>
+      </div>
+
+      <button class="btn hidden" id="confirm-pay-btn">Confirm Weight & Pay</button>
+      <button class="btn secondary" id="job-back">Back to list</button>
+    </div>
+  </section>
+
+  <!-- DASHBOARD VIEW -->
+  <section class="view" id="dashboard">
+    <div class="card">
+      <h2>Live recovery dashboard</h2>
+      <p class="subtle">Ward 14 · Recycler & CPCB view</p>
+      <div class="stat-grid" style="margin-top:14px;">
+        <div class="stat"><div class="num" id="stat-pickups">12</div><div class="lbl">Pickups today</div></div>
+        <div class="stat"><div class="num" id="stat-kg">46</div><div class="lbl">Kg collected</div></div>
+        <div class="stat"><div class="num" id="stat-credits">230</div><div class="lbl">EPR Credits</div></div>
+        <div class="stat"><div class="num" id="stat-workers">9</div><div class="lbl">Active kabadiwalas</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2 style="font-size:1.05rem;">Live feed</h2>
+      <div id="feed"></div>
+    </div>
+  </section>
+
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ---------- shared state ----------
+  const state = {
+    pickups: 12, kg: 46, credits: 230, workers: 9,
+    jobs: [
+      {id:1, addr:"12 MG Road", type:"E-Waste"},
+      {id:2, addr:"Sector 4, Park Lane", type:"Plastic"},
+      {id:3, addr:"Near Govt School", type:"Mixed"},
+    ],
+    feed: [
+      "Suresh completed a Plastic pickup · 3kg",
+      "Anita requested an E-Waste pickup",
+      "EPR credit minted for Ward 14 · 12 kg batch",
+    ]
+  };
+
+  const toastEl = document.getElementById('toast');
+  function toast(msg){
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    setTimeout(()=>toastEl.classList.remove('show'), 2200);
+  }
+
+  // ---------- tab switching ----------
+  document.querySelectorAll('nav.tabs button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.view).classList.add('active');
+      if(btn.dataset.view === 'kabadiwala') renderJobs();
+      if(btn.dataset.view === 'dashboard') renderDashboard();
+    });
+  });
+
+  // ---------- CITIZEN flow ----------
+  let selectedType = null;
+  document.querySelectorAll('#citizen .choice').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      document.querySelectorAll('#citizen .choice').forEach(x=>x.classList.remove('selected'));
+      c.classList.add('selected');
+      selectedType = c.dataset.type;
+      document.getElementById('request-btn').disabled = false;
+    });
+  });
+  document.getElementById('request-btn').addEventListener('click', ()=>{
+    document.getElementById('citizen-request-card').classList.add('hidden');
+    document.getElementById('citizen-confirmed-card').classList.remove('hidden');
+    state.jobs.push({id: Date.now(), addr:"Your location", type: selectedType});
+    state.feed.unshift(`New ${selectedType} pickup requested`);
+  });
+  document.getElementById('citizen-reset').addEventListener('click', ()=>{
+    document.getElementById('citizen-confirmed-card').classList.add('hidden');
+    document.getElementById('citizen-request-card').classList.remove('hidden');
+    document.querySelectorAll('#citizen .choice').forEach(x=>x.classList.remove('selected'));
+    document.getElementById('request-btn').disabled = true;
+    selectedType = null;
+  });
+
+  // ---------- KABADIWALA flow ----------
+  const typeEmoji = {"E-Waste":"📱","Plastic":"♻️","Mixed":"🗑️"};
+  let activeJob = null;
+
+  function renderJobs(){
+    const list = document.getElementById('job-list');
+    list.innerHTML = '';
+    state.jobs.forEach(job=>{
+      const row = document.createElement('div');
+      row.className = 'job-row';
+      row.innerHTML = `
+        <div>
+          <strong>${typeEmoji[job.type]||'♻️'} ${job.type}</strong>
+          <div class="meta">${job.addr}</div>
+        </div>
+        <button class="tag-btn" data-id="${job.id}">Scan</button>`;
+      list.appendChild(row);
+    });
+    list.querySelectorAll('.tag-btn').forEach(b=>{
+      b.addEventListener('click', ()=> openJob(b.dataset.id));
+    });
+  }
+
+  function openJob(id){
+    activeJob = state.jobs.find(j => String(j.id) === String(id));
+    document.getElementById('job-list-card').classList.add('hidden');
+    document.getElementById('job-detail-card').classList.remove('hidden');
+    document.getElementById('scan-result').classList.add('hidden');
+    document.getElementById('confirm-pay-btn').classList.add('hidden');
+    document.getElementById('photo-preview').innerHTML = '';
+    document.getElementById('upload-hint').classList.remove('hidden');
+    document.getElementById('photo-input').value = '';
+  }
+
+  document.getElementById('job-back').addEventListener('click', ()=>{
+    document.getElementById('job-detail-card').classList.add('hidden');
+    document.getElementById('job-list-card').classList.remove('hidden');
+    renderJobs();
+  });
+
+  document.getElementById('photo-input').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      document.getElementById('photo-preview').innerHTML = `<img src="${reader.result}">`;
+      document.getElementById('upload-hint').classList.add('hidden');
+      runClassification();
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function runClassification(){
+    // Simulated on-device classification — swap for a real vision API call later.
+    const guessedType = (activeJob && activeJob.type) || ["E-Waste","Plastic","Mixed"][Math.floor(Math.random()*3)];
+    const quality = Math.random() > 0.35 ? 'good' : 'mixed';
+    const confidence = 82 + Math.floor(Math.random()*15);
+    setTimeout(()=>{
+      document.getElementById('scan-emoji').textContent = typeEmoji[guessedType] || '♻️';
+      document.getElementById('scan-type').textContent = guessedType;
+      const qEl = document.getElementById('scan-quality');
+      qEl.textContent = quality === 'good' ? 'Good Quality' : 'Mixed Quality';
+      qEl.className = 'pill ' + quality;
+      document.getElementById('scan-confidence').textContent = `Confidence: ${confidence}%`;
+      document.getElementById('scan-result').classList.remove('hidden');
+      document.getElementById('confirm-pay-btn').classList.remove('hidden');
+    }, 500);
+  }
+
+  document.getElementById('confirm-pay-btn').addEventListener('click', ()=>{
+    const kg = (Math.random()*4 + 1).toFixed(1);
+    const amount = Math.round(kg * 15);
+    state.pickups += 1;
+    state.kg += parseFloat(kg);
+    state.credits += Math.round(kg * 5);
+    state.feed.unshift(`Pickup completed · ${kg}kg · ₹${amount} paid`);
+    state.jobs = state.jobs.filter(j => j !== activeJob);
+    toast(`✅ ₹${amount} credited to kabadiwala`);
+    document.getElementById('job-detail-card').classList.add('hidden');
+    document.getElementById('job-list-card').classList.remove('hidden');
+    renderJobs();
+  });
+
+  // ---------- DASHBOARD ----------
+  function renderDashboard(){
+    document.getElementById('stat-pickups').textContent = state.pickups;
+    document.getElementById('stat-kg').textContent = Math.round(state.kg);
+    document.getElementById('stat-credits').textContent = state.credits;
+    document.getElementById('stat-workers').textContent = state.workers;
+    const feed = document.getElementById('feed');
+    feed.innerHTML = '';
+    state.feed.slice(0,8).forEach(f=>{
+      const item = document.createElement('div');
+      item.className = 'feed-item';
+      item.innerHTML = `<span class="dot"></span><span>${f}</span>`;
+      feed.appendChild(item);
+    });
+  }
+
+  renderJobs();
+  renderDashboard();
+</script>
+</body>
+</html>
